@@ -1,6 +1,10 @@
 import subprocess
 import cv2
 import numpy as np
+import statistics
+import math
+
+#from PIL import Image, ImageDraw
 
 
 
@@ -20,10 +24,11 @@ import numpy as np
 #print("a")
 
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 646) # カメラ画像の横幅を1280に設定
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 484) # カメラ画像の縦幅を720に設定
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280) # カメラ画像の横幅を1920#1280に設定#646
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 960) # カメラ画像の縦幅を1080720に設定#484
+
 
 avg=None
 
@@ -31,13 +36,172 @@ avg=None
 #threshold = 100
 
 
-p = 312664  # 2073600
+p =1228800#921600 #2073600 #312664
+#1280×960
+wide=1280
+#1280
+high=960
+#720
+#p = 1228800
+
+
+def reset_standard():
+    global basetop
+    global basetop2
+    global avg
+
+    avg = gray.copy().astype("float")
+
+    base = np.asarray(avg)
+    base = base.flatten()  # 元データ
+    
+    p = len(base)
+    basedata = []  # 移動平均
+    basetop = []  # 頂点位置
+    
+    for a in range(p):
+
+        if a==0:
+            now_sum=sum(base[0:3])
+            d=now_sum/3
+        elif a==1 or a==2:
+            now_sum=bef_sum+base[a+2]
+            d = now_sum/(a+3)            
+        elif a==p-2 or a==p-1:
+            now_sum=bef_sum-base[a-3]
+            if a==p-2:
+                d = now_sum/4
+            else:
+                d = now_sum/3
+        else:
+            now_sum=bef_sum-base[a-3]+base[a+2]
+            d = now_sum/5
+
+        basedata.append(d)
+        bef_sum = now_sum
+
+       
+    #print("basedata")
+
+    count = 1
+    start = 0
+    before = -999999
+    trend = 0  # 上がっていたら１下がっていたら０     
+    for e in range(p):
+        now = basedata[e]
+        if before == now:
+            count += 1
+        elif before > now:
+            if trend == 1:
+                if count > 1:
+                    if (start+e-1)/2 >= 3 and (start+e-1)/2 <= (p-1)-3:
+                        basetop.append((start+e-1)/2)
+                else:
+                    if e-1 >= 3 and e-1 <= (p-1)-3:
+                        basetop.append(e-1)
+            trend = 0
+            count = 1
+            start = 0
+        elif before < now and before >= 100:
+            trend = 1
+            count = 1
+            start = e
+
+        before = now
+    
+    #print("basetop")
+
+    ql = []
+    for q in range(len(basetop)-1):
+        qq = basetop[q+1]-basetop[q]
+        ql.append(qq)
+        #print(set(ql))
+        #print(sum(ql)/len(ql))
+    #print("ql")
+    basetop2 = basetop[::111]#79#50
+    #print("basetop2")
+    #print(len(basetop))
+
+
+#t_range = sum(ql)/len(ql)
+#if t_range % 2 == 0:
+#t_range = t_range+1
+
+#円は別
+#color1 = np.array([255., 255., 255.])
+#for tyouten in basetop[::100]:
+#yy = int((tyouten//wide)+1)
+#xx = int(tyouten-(wide*(yy-1)))
+#print(xx,yy)
+#cv2.circle(img=avg, center=(xx, yy), radius=5,color=color1, thickness=2, lineType=cv2.LINE_AA)
+
+#avetopbase=np.average(basetop)
+#pvabase = statistics.pvariance(basetop)
+
+#ql = []
+#qi = []
+#for q in range(len(basetop2)-1):
+#qq = basetop2[q+1]-basetop2[q]
+#ql.append(qq)
+#print(set(ql))
+#print(sum(ql)/len(ql))
+
+
+#print(basedata[0:101])
+#print(basetop)
+# #return
+
+def searching_top():
+    global toplist
+    xrange = 7
+    x = list(range(xrange))  # list(range(35))  # 15  xrange=int(t_range/2)
+    toplist = []
+    #print(p)
+    p = len(data1)
+    #print(p)
+    #print("data1", len(data1))
+    
+    for top in basetop2:
+        top=int(top)
+        if top<=int(xrange/2):
+            y = data1[:xrange]
+        elif top >= (p-1)-int(xrange/2):  
+            y = data1[(p-1)-(xrange-1):]  
+            #print("x", len(x))
+            #print("y", len(y))
+        else:
+            y = data1[top-int(xrange/2):top+int(xrange/2)+1]  # int(xrange/2),int(xrange/2)+1
+        #print("x",x)
+        #print("y",y)
+        z = np.polyfit(x, y, 2)
+        d = (-z[1]) / (2 * z[0])
+    
+        if top <= int(xrange/2):  # int(xrange/2)
+            toplist.append(d)
+        elif top >= (p-1)-int(xrange/2):  # int(xrange/2)
+            toplist.append(d+(p-1)-xrange-1)  # xrange-1
+        else:
+            toplist.append(d+top-int(xrange/2))  # int(xrange/2)
+
+
+
+    
+  
 
 
 while(True):
-    
     ret, frame = cap.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    key = cv2.waitKey(1)
+    if key == ord('s'):
+        reset_standard()
+        color1 = np.array([255., 255., 255.])
+        for tyouten in basetop2:  # basetop[::100]:
+            yy = int((tyouten//wide)+1)
+            xx = int(tyouten-(wide*(yy-1)))
+            #print(xx,yy)
+            cv2.circle(img=avg, center=(xx, yy), radius=5,color=color1, thickness=2, lineType=cv2.LINE_AA)
 
     data1 = gray.copy().astype("float")
     data1 = np.asarray(data1)
@@ -59,125 +223,57 @@ while(True):
   
 
     if avg is None:
+        reset_standard()
+        color1 = np.array([255., 255., 255.])
 
-        #print("b")
-        avg = gray.copy().astype("float")
-        base = np.asarray(avg)
-        #print(base)
-        base=base.flatten()#元データ
-        #print(base)
-        
-        
-        basedata=[]#移動平均
-        basetop=[]#頂点位置
-        x=[0,0,0,0,0]
-        num=-2
-        b=0
-        for a in range(p+2):
-            num+=1
-            iti=b%5
-            if num == p-2 or num == p-1:  # 最後の２つ
-                x[iti]=0
-            else:  # 通常
-                x[iti] = base[a] #通常
-            
-            if num==0 or num==1:#始めの二つ
-                d=sum(x)/(iti+1)
-                basedata.append(d)
-            elif num == p-2 :#最後の２つ
-                #print(iti)
-                d=sum(x)/4
-                basedata.append(d)
-            elif num == p-1:
-                d = sum(x)/3
-                basedata.append(d)
-            elif num>1: #通常
-                d=sum(x)/5
-                basedata.append(d)
-            b+=1
-        
-        count=1
-        start=0
-        before=-999999
-        trend=0 #上がっていたら１下がっていたら０
-
-        for e in range(p):
-            now = basedata[e]
-
-            if before==now:
-                count+=1
-            elif before>now:
-                if trend==1:
-                    if count>1:
-                        if (start+e-1)/2 >= 3 and (start+e-1)/2<=(p-1)-3:
-                            basetop.append((start+e-1)/2)
-                    else:
-                        if e-1 >= 3 and e-1 <= (p-1)-3:
-                            basetop.append(e-1)
-                trend = 0
-                count = 1
-                start = 0
-            elif before < now:
-                trend = 1
-                count = 1
-                start = e
-
-                        
-            before=now 
-        """    
-        ql=[]
-        qi=[]
-        for q in range(len(basetop)-1):
-            qq=basetop[q+1]-basetop[q]
-            if qq==18:
-                qi.append(q)
-            ql.append(qq)
-        #print(qi)
-        print(set(ql))
-
-        rl=[]
-        for r in range(len(qi)-1):
-            rr = qi[r+1]-qi[r]     
-            rl.append(rr)
-        print(set(rl))
-         """
-
-        #print(basedata[0:101])
-        print(basetop)   
+        for tyouten in basetop2:#basetop[::100]:
+            yy = int((tyouten//wide)+1)
+            xx = int(tyouten-(wide*(yy-1)))
+            #print(xx,yy)
+            cv2.circle(img=avg, center=(xx, yy), radius=5,color=color1, thickness=2, lineType=cv2.LINE_AA)
         continue
 
+    searching_top()
 
     #print(basedata)
     #print(basetop)
-
-    cv2.imshow("image2", avg)
+    #basetop2=basetop[::50]
 
     
-
-    x = [0, 1, 2, 3, 4, 5, 6]
-    toplist = []
-
-    for top in basetop:
-        top=int(top)
-        if top<=3:
-            y=data1[:7]
-        elif top>=(p-1)-3:
-            y=data1[(p-1)-6:]
-        else:
-            y=data1[top-3:top+4]
-        z = np.polyfit(x, y, 2)
-        d = (-z[1]) / (2 * z[0])
-    
-        if top <= 3:
-            toplist.append(d)
-        elif top >= (p-1)-3:
-            toplist.append(d+(p-1)-6)
-        else:
-            toplist.append(d+top-3)
 
     #print(toplist)
+    
+    #result = np.array(basetop)-np.array(toplist)
+    #averesult = np.average(result)
+    #pvaresult = statistics.pvariance(result)
+    #print("result")
+    #print(result)
+    #print(sorted(result)[0:10])
+    #print("averesult",averesult)
+    #print("pvasesult",pvaresult)
+    #print(sorted(result)[0:10])
+    
+    color2 = np.array([255., 255., 255.])
 
-    key = cv2.waitKey(1)
+    for iti in range(0,len(basetop2)):
+        sa=basetop2[iti]-toplist[iti]
+        #print(basetop2[iti],toplist[iti])
+        sa=int(abs(sa)*10)
+        #print(sa)
+        #print(sa)
+        bt1=basetop2[iti]
+        #print(sa)
+        #if sa>=1.0:
+        yy2 = int((bt1//wide)+1)
+        xx2 = int(bt1-(wide*(yy2-1)))
+        #print(xx2, yy2)
+        if sa <10000:
+            cv2.circle(img=gray, center=(xx2, yy2), radius=sa,color=color2, thickness=2, lineType=cv2.LINE_AA)
+
+    cv2.imshow("image2",  cv2.convertScaleAbs(avg))  # 前
+    cv2.imshow("now", gray)  # 今
+
+
     if key == 27:
         break
 
