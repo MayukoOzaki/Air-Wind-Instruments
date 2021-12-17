@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import statistics
 import math
+import time
 
 #from PIL import Image, ImageDraw
 
@@ -31,6 +32,8 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 960) # カメラ画像の縦幅を1080720に�
 
 
 avg=None
+bef_toplist = None
+bef_ss=None
 
 # 閾値の設定
 #threshold = 100
@@ -95,7 +98,7 @@ def reset_standard():
             if trend == 1:
                 if count > 1:
                     if (start+e-1)/2 >= 3 and (start+e-1)/2 <= (p-1)-3:
-                        basetop.append((start+e-1)/2)
+                        basetop.append(int((start+e-1)/2))#
                 else:
                     if e-1 >= 3 and e-1 <= (p-1)-3:
                         basetop.append(e-1)
@@ -184,10 +187,8 @@ def searching_top():
             toplist.append(d+top-int(xrange/2))  # int(xrange/2)
 
 
-
-    
-  
-
+count1 = 0
+count2 = 0
 
 while(True):
     ret, frame = cap.read()
@@ -202,6 +203,17 @@ while(True):
             xx = int(tyouten-(wide*(yy-1)))
             #print(xx,yy)
             cv2.circle(img=avg, center=(xx, yy), radius=5,color=color1, thickness=2, lineType=cv2.LINE_AA)
+    
+    if key == ord('b'):
+        print("なし",count1,count2,count1/count2)
+        print("吹いた")
+        count1=0
+        count2=0
+    if key == ord('e'):
+        print("止めた")
+        print("あり",count1,count2,count1/count2)
+        count1=0
+        count2=0
 
     data1 = gray.copy().astype("float")
     data1 = np.asarray(data1)
@@ -235,6 +247,13 @@ while(True):
 
     searching_top()
 
+    if bef_toplist is None:
+        bef_toplist=toplist
+        continue
+
+    now_toplist=toplist
+    
+
     #print(basedata)
     #print(basetop)
     #basetop2=basetop[::50]
@@ -254,11 +273,14 @@ while(True):
     #print(sorted(result)[0:10])
     
     color2 = np.array([255., 255., 255.])
-
+    sa_x=0
+    sa_xx=0
     for iti in range(0,len(basetop2)):
-        sa=basetop2[iti]-toplist[iti]
+        sa=bef_toplist[iti]-now_toplist[iti]
+        sa_x+=sa
+        sa_xx+=sa**2
         #print(basetop2[iti],toplist[iti])
-        sa=int(abs(sa)*10)
+        sa=int(abs(sa)*100)
         #print(sa)
         #print(sa)
         bt1=basetop2[iti]
@@ -270,9 +292,54 @@ while(True):
         if sa <10000:
             cv2.circle(img=gray, center=(xx2, yy2), radius=sa,color=color2, thickness=2, lineType=cv2.LINE_AA)
 
+    #print(len(basetop2))#880
+    try:
+        sa_x2=(sa_x/len(basetop2))**2 #合計の平均の２乗
+        sa_xx2=sa_xx/len(basetop2) #2乗合計の平均
+        ss = sa_xx2-sa_x2
+        if bef_ss == None:
+            bef_ss = ss
+        now_ss = ss
+        #n=880,880
+        #分子の自由度879,分母の自由度879
+        #
+        #パーセント点 
+        #https://keisan.casio.jp/exec/system/1161228871
+        #1%基準
+        #1.17006201074148931468
+        #0.1%基準
+        #1.232087743495074646261
+        #0.05%基準
+        #1.248901820536719497381
+        per = 1.2489
+
+        if bef_ss >= now_ss:
+            F = bef_ss/now_ss  # round(bef_ss/now_ss,5)
+        else:
+            F = now_ss/bef_ss #round(now_ss/bef_ss, 5)
+            #a = round(2 / 3, 5)小数点第５位まで
+        #print(F)
+        if F>=2 or F=="inf":
+            pass
+        else:
+            #print(F)
+            count2 += 1
+            if F > per:
+                #print(F)
+                #print("違う")
+                count1+=1
+    except:
+        pass
+
+
     cv2.imshow("image2",  cv2.convertScaleAbs(avg))  # 前
     cv2.imshow("now", gray)  # 今
 
+    bef_toplist=now_toplist
+    bef_ss=now_ss
+
+
+    time.sleep(0.01)
 
     if key == 27:
         break
