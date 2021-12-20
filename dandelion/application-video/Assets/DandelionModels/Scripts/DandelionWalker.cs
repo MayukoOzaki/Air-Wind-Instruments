@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class DandelionWalker : MonoBehaviour
 {
+    public GameObject camera;
+    bool isBlown;
     // Start is called before the first frame update
     void Start()
     {
-        GetComponent<Rigidbody>().velocity = Vector3.back * 1.1f;
+        isBlown = false;
+        camera = GameObject.FindGameObjectWithTag("MainCamera");
     }
 
     // Update is called once per frame
@@ -18,7 +21,14 @@ public class DandelionWalker : MonoBehaviour
 
     void OnTriggerEnter(Collider c)
     {
-        GetComponent<DandelionController>().Blow();
+        if( !isBlown )
+        {
+            isBlown = true;
+            Vector3 dir = transform.position - camera.gameObject.transform.position;
+            Debug.Log(dir);
+            GetComponent<DandelionController>().Blow(dir);
+            Debug.Log("here");
+        }
     }
 
     void OnTriggerExit(Collider c)

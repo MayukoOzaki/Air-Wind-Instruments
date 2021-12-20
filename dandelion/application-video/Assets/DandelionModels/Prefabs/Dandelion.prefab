@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 1372388404521607414}
   - component: {fileID: 1372388404521607415}
   - component: {fileID: 1372388404521607408}
-  - component: {fileID: 1372388404521607409}
   m_Layer: 0
   m_Name: Stem
   m_TagString: Untagged
@@ -82,20 +81,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &1372388404521607409
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1372388404521607410}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!1 &1372388404716492711
 GameObject:
   m_ObjectHideFlags: 0
@@ -105,6 +90,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1372388404716492710}
+  - component: {fileID: 146200437}
+  - component: {fileID: 146200439}
+  - component: {fileID: 7462078454174451622}
   m_Layer: 0
   m_Name: Dandelion
   m_TagString: Untagged
@@ -129,6 +117,46 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &146200437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372388404716492711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72b14812ef35128baab12414e46c0bd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topSeeds: {fileID: 1372388404955514529}
+  ps: {fileID: 1372388405550767212}
+--- !u!114 &146200439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372388404716492711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ec554776838ea206af584c0e6e45d85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!136 &7462078454174451622
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372388404716492711}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 0.6
+  m_Height: 4
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1372388404955514529
 GameObject:
   m_ObjectHideFlags: 0
@@ -140,7 +168,6 @@ GameObject:
   - component: {fileID: 1372388404955514533}
   - component: {fileID: 1372388404955514534}
   - component: {fileID: 1372388404955514535}
-  - component: {fileID: 1372388404955514528}
   m_Layer: 0
   m_Name: HeadOutside
   m_TagString: Untagged
@@ -211,19 +238,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &1372388404955514528
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1372388404955514529}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1372388405087428846
 GameObject:
   m_ObjectHideFlags: 0
@@ -235,7 +249,6 @@ GameObject:
   - component: {fileID: 1372388405087428754}
   - component: {fileID: 1372388405087428755}
   - component: {fileID: 1372388405087428844}
-  - component: {fileID: 1372388405087428845}
   m_Layer: 0
   m_Name: HeadCore
   m_TagString: Untagged
@@ -307,19 +320,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &1372388405087428845
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1372388405087428846}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &5863061494060544496
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -329,11 +329,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4780136314018737564, guid: 6bfdcfa74fef52c63a057d38724b04d2, type: 3}
       propertyPath: lengthInSec
-      value: 0.2
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 4780136314018737564, guid: 6bfdcfa74fef52c63a057d38724b04d2, type: 3}
       propertyPath: ClampVelocityModule.dampen
       value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4780136314018737564, guid: 6bfdcfa74fef52c63a057d38724b04d2, type: 3}
+      propertyPath: ClampVelocityModule.separateAxis
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4780136314018737564, guid: 6bfdcfa74fef52c63a057d38724b04d2, type: 3}
       propertyPath: EmissionModule.rateOverTime.scalar
@@ -409,6 +413,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6bfdcfa74fef52c63a057d38724b04d2, type: 3}
+--- !u!198 &1372388405550767212 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 4780136314018737564, guid: 6bfdcfa74fef52c63a057d38724b04d2, type: 3}
+  m_PrefabInstance: {fileID: 5863061494060544496}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1372388405550767123 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4780136314018737635, guid: 6bfdcfa74fef52c63a057d38724b04d2, type: 3}

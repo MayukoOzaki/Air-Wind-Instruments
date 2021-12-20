@@ -5,6 +5,7 @@ using UnityEngine;
 public class DandelionController : MonoBehaviour
 {
     public GameObject topSeeds;
+    public GameObject camera;
     public ParticleSystem ps;
     // Start is called before the first frame update
     void Start()
@@ -17,13 +18,17 @@ public class DandelionController : MonoBehaviour
     {
         if( Input.GetKeyDown(KeyCode.B) )
         {
-            Blow();
+            Blow(Vector3.forward);
         }
     }
 
-    public void Blow()
+    public void Blow(Vector3 dir)
     {
         StartCoroutine(RemoveTop());
+        Vector3 target = topSeeds.transform.position + dir;
+        target.y = topSeeds.transform.position.y;
+
+        ps.transform.LookAt(target);
         ps.Play();
     }
 
@@ -31,5 +36,7 @@ public class DandelionController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.2f);
         topSeeds.SetActive(false);
+        yield return new WaitForSeconds(0.3f);
+        gameObject.SetActive(false);
     }
 }
