@@ -5,7 +5,6 @@ using UnityEngine;
 public class DandelionController : MonoBehaviour
 {
     public GameObject topSeeds;
-    public GameObject camera;
     public ParticleSystem ps;
     // Start is called before the first frame update
     void Start()
