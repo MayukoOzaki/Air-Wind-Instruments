@@ -25,9 +25,7 @@ public class DandelionWalker : MonoBehaviour
         {
             isBlown = true;
             Vector3 dir = transform.position - camera.gameObject.transform.position;
-            Debug.Log(dir);
             GetComponent<DandelionController>().Blow(dir);
-            Debug.Log("here");
         }
     }
 
