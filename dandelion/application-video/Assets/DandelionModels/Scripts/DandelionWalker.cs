@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DandelionWalker : MonoBehaviour
 {
-    public GameObject camera;
+    GameObject camera;
     bool isBlown;
     // Start is called before the first frame update
     void Start()
