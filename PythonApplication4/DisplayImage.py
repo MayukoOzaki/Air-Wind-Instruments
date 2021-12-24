@@ -7,6 +7,8 @@ import time
 
 #from PIL import Image, ImageDraw
 
+XRANGE = 7
+
 
 
 #画面録画
@@ -150,8 +152,7 @@ def reset_standard():
 
 def searching_top():
     global toplist
-    xrange = 7
-    x = list(range(xrange))  # list(range(35))  # 15  xrange=int(t_range/2)
+    x = list(range(XRANGE))  # list(range(35))  # 15  XRANGE=int(t_range/2)
     toplist = []
     #print(p)
     p = len(data1)
@@ -160,25 +161,25 @@ def searching_top():
 
     for top in basetop2:
         top=int(top)
-        if top<=int(xrange/2):
-            y = data1[:xrange]
-        elif top >= (p-1)-int(xrange/2):
-            y = data1[(p-1)-(xrange-1):]
+        if top<=int(XRANGE/2):
+            y = data1[:XRANGE]
+        elif top >= (p-1)-int(XRANGE/2):
+            y = data1[(p-1)-(XRANGE-1):]
             #print("x", len(x))
             #print("y", len(y))
         else:
-            y = data1[top-int(xrange/2):top+int(xrange/2)+1]  # int(xrange/2),int(xrange/2)+1
+            y = data1[top-int(XRANGE/2):top+int(XRANGE/2)+1]  # int(XRANGE/2),int(XRANGE/2)+1
         #print("x",x)
         #print("y",y)
         z = np.polyfit(x, y, 2)
         d = (-z[1]) / (2 * z[0])
 
-        if top <= int(xrange/2):  # int(xrange/2)
+        if top <= int(XRANGE/2):  # int(XRANGE/2)
             toplist.append(d)
-        elif top >= (p-1)-int(xrange/2):  # int(xrange/2)
-            toplist.append(d+(p-1)-xrange-1)  # xrange-1
+        elif top >= (p-1)-int(XRANGE/2):  # int(XRANGE/2)
+            toplist.append(d+(p-1)-XRANGE-1)  # XRANGE-1
         else:
-            toplist.append(d+top-int(xrange/2))  # int(xrange/2)
+            toplist.append(d+top-int(XRANGE/2))  # int(XRANGE/2)
 
 
 count1 = 0
