@@ -7,9 +7,14 @@ import time
 
 #from PIL import Image, ImageDraw
 
-XRANGE = 7
+XRANGE = 5
+IMAGE_LEFT = 500
+IMAGE_RIGHT = 1500
+GAP = 113
+CIRCLE_SCALE = 100
 
-
+diffListOrg = []    # 「平常時に」頂点位置が頂点候補位置のピクセルからどれだけずれているか
+diffList = []       # 「現画像で」頂点位置が頂点候補位置のピクセルからどれだけずれているか
 
 #画面録画
 #fps = 30
@@ -40,9 +45,19 @@ bef_ss=None
 # 閾値の設定
 #threshold = 100
 
-wide = cap.get(3)
-high = cap.get(4)
+wide = int(cap.get(3))
+high = int(cap.get(4))
 p = wide*high
+
+def calcDiff(pindex):
+    if (pindex < XRANGE) or (p-XRANGE < pindex):
+        return 0
+
+    x = [ k-XRANGE//2 for k in range(XRANGE) ]
+    y = [ data1[k] for k in range(pindex,pindex+XRANGE) ]
+    z = np.polyfit(x, y, 2)
+    d = (-z[1]) / (2 * z[0])
+    return d
 
 def reset_standard():
     global basetop
@@ -59,7 +74,6 @@ def reset_standard():
     basetop = []  # 頂点位置
 
     for a in range(p):
-
         if a==0:
             now_sum=sum(base[0:3])
             d=now_sum/3
@@ -87,6 +101,8 @@ def reset_standard():
     before = -999999
     trend = 0  # 上がっていたら１下がっていたら０
     for e in range(p):
+        if (e%wide < IMAGE_LEFT) or (IMAGE_RIGHT < e%wide):
+            continue
         now = basedata[e]
         if before == now:
             count += 1
@@ -117,7 +133,14 @@ def reset_standard():
         #print(set(ql))
         #print(sum(ql)/len(ql))
     #print("ql")
-    basetop2 = basetop[::111]#79#50
+    basetop2 = basetop[::GAP]#79#50
+    global diffListOrg
+    global diffList
+    diffListOrg = [calcDiff(i) for i in basetop2]
+    diffList    = [0.0 for _ in basetop2]
+
+    print(diffListOrg)
+
     #print("basetop2")
     #print(len(basetop))
 
@@ -182,6 +205,8 @@ def searching_top():
             toplist.append(d+top-int(XRANGE/2))  # int(XRANGE/2)
 
 
+
+
 count1 = 0
 count2 = 0
 
@@ -194,8 +219,8 @@ while(True):
         reset_standard()
         color1 = np.array([255., 255., 255.])
         for tyouten in basetop2:  # basetop[::100]:
-            yy = int((tyouten//wide)+1)
-            xx = int(tyouten-(wide*(yy-1)))
+            yy = int( tyouten // wide )
+            xx = int( tyouten % wide )
             #print(xx,yy)
             cv2.circle(img=avg, center=(xx, yy), radius=5,color=color1, thickness=2, lineType=cv2.LINE_AA)
 
@@ -240,8 +265,17 @@ while(True):
             cv2.circle(img=avg, center=(xx, yy), radius=5,color=color1, thickness=2, lineType=cv2.LINE_AA)
         continue
 
-    searching_top()
+    diffList = [calcDiff(i) for i in basetop2]
+    for i,diff in enumerate(diffList):
+        cx = basetop2[i] % wide
+        cy = basetop2[i] // wide
+        topShift = abs( diff - diffListOrg[i] )
+        if topShift > 4.0:
+            continue
+        cv2.circle(img=gray, center=(cx, cy), color=[255,0,0], radius=int(topShift*CIRCLE_SCALE),thickness=1,lineType=cv2.LINE_AA)
 
+#    searching_top()
+    '''
     if bef_toplist is None:
         bef_toplist=toplist
         continue
@@ -325,13 +359,14 @@ while(True):
                 count1+=1
     except:
         pass
+    '''
 
-
-    cv2.imshow("image2",  cv2.convertScaleAbs(avg))  # 前
+#    cv2.imshow("image2",  cv2.convertScaleAbs(avg))  # 前
+    cv2.imshow("image2",  avg)  # 前
     cv2.imshow("now", gray)  # 今
 
-    bef_toplist=now_toplist
-    bef_ss=now_ss
+#    bef_toplist=now_toplist
+#    bef_ss=now_ss
 
 
     time.sleep(0.01)
